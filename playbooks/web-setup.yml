@@ -1,0 +1,45 @@
+---
+- name: Install Apache web server and deploy homepage
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: latest
+
+    - name: Start and enable Apache
+      service:
+        name: apache2
+        state: started
+        enabled: true
+
+    - name: Deploy dynamic index.html
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <meta charset="UTF-8">
+              <title>Page Apache Ansible</title>
+              <style>
+                  body { background: #f4f4f4; text-align: center; padding: 50px; font-family: sans-serif; }
+                  h1 { color: #333; }
+              </style>
+          </head>
+          <body>
+              <h1>Apache installé avec succès via Ansible 🎉</h1>
+              <p>Machine : {{ inventory_hostname }}</p>
+              <p>Déployé le : {{ ansible_date_time.date }} à {{ ansible_date_time.time }}</p>
+          </body>
+          </html>
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
